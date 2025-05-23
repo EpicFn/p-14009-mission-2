@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 enum CommandType {
-    종료, 등록, 삭제, 수정, 목록, 빌드, 리셋, 시작
+    종료, 등록, 삭제, 수정, 목록, 빌드, 초기화, 시작
 }
 
 public class QuoteBoard {

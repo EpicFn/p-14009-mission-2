@@ -18,7 +18,7 @@ public class Main {
             buf = br.readLine();
 
             try{
-                qb.setCmd(CommandType.valueOf(buf.substring(0,2)));
+                qb.setCmd(CommandType.valueOf(buf.split("#")[0]));
             } catch (IllegalArgumentException e){
                 System.out.println("잘못된 명령어입니다.");
                 continue;
@@ -41,7 +41,7 @@ public class Main {
                 case 빌드 :
                     qb.build();
                     break;
-                case 리셋 :
+                case 초기화 :
                     qb.reset();
                     break;
             }
