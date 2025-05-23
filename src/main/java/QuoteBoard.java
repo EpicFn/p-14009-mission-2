@@ -82,7 +82,7 @@ public class QuoteBoard {
 
         // 명언 등록
         try {
-            QuoteData qd = new QuoteData(nextId, quote, author);
+            QuoteData qd = new QuoteData(nextId++, quote, author);
             fm.createQuoteFile(qd);
             dic.add(qd);
         } catch (Exception e) {
@@ -247,7 +247,7 @@ public class QuoteBoard {
      */
     public void endSequence() {
         try{
-            fm.saveLastId(nextId);
+            fm.saveLastId(nextId-1);
         }catch (Exception e){
             System.out.println("id 저장 실패");
             e.printStackTrace();
