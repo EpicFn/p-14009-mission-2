@@ -67,7 +67,22 @@ public class FileManager {
      * @throws Exception
      */
     public QuoteData readQuoteFile(int id) throws Exception {
-        return mapper.readValue(new File(dbPath + "/" + id + ".json"), QuoteData.class);
+        // jackson 라이브러리 사용
+        //return mapper.readValue(new File(dbPath + "/" + id + ".json"), QuoteData.class);
+
+        // FileReader 사용
+        File file = new File(dbPath + "/" + id + ".json");
+        if (!file.exists()) {
+            return null;
+        }
+        List<String> lines = java.nio.file.Files.readAllLines(file.toPath());
+
+        QuoteData qd = new QuoteData();
+        qd.setId(id);
+        qd.setContent(lines.get(2).substring(0, lines.get(2).length() - 1).split(":")[1].replaceAll("\"", "").trim());
+        qd.setAuthor(lines.get(3).split(":")[1].replaceAll("\"", "").trim());
+
+        return qd;
     }
 
     /**
@@ -76,8 +91,22 @@ public class FileManager {
      * @throws Exception
      */
     public void updateQuoteFile(QuoteData qd) throws Exception {
-        mapper.writerWithDefaultPrettyPrinter()
-                .writeValue(new File(dbPath + "/" + qd.getId() + ".json"), qd);
+        String str =
+                "{\n" +
+                        "   \"id\": " + qd.getId() + ",\n" +
+                        "   \"content\": \"" + qd.getContent().trim() + "\",\n" +
+                        "   \"author\": \"" + qd.getAuthor().trim() + "\"\n" +
+                        "}";
+
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter(dbPath + "/" + qd.getId() + ".json"))) {
+            bw.write(str);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // jackson 라이브러리 사용
+//        mapper.writerWithDefaultPrettyPrinter()
+//                .writeValue(new File(dbPath + "/" + qd.getId() + ".json"), qd);
     }
 
     // -----------------------------------------------------

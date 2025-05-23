@@ -1,4 +1,6 @@
 import java.io.*;
+import java.util.List;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
@@ -8,6 +10,8 @@ public class Main {
         String buf;
 
         QuoteBoard qb = new QuoteBoard();
+
+
 
         // -----------------------------------------------------
         System.out.println("== 명언 앱 ==");
