@@ -25,6 +25,20 @@ public class FileManager {
      * @throws Exception
      */
     public void createQuoteFile(QuoteData qd) throws Exception {
+
+        String str =
+                "{\n" +
+                "   \"id\": " + qd.getId() + "\n" +
+                "   \"quote\": \"" + qd.getContent() + "\"\n" +
+                "   \"author\": \"" + qd.getAuthor() + "\"\n" +
+                "}";
+
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter(dbPath + "/" + qd.getId() + ".json"))) {
+            bw.write(String.valueOf(str));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         mapper.writerWithDefaultPrettyPrinter()
                 .writeValue(new File(dbPath + "/" + qd.getId() + ".json"), qd);
     }
