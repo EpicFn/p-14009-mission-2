@@ -28,19 +28,21 @@ public class FileManager {
 
         String str =
                 "{\n" +
-                "   \"id\": " + qd.getId() + "\n" +
-                "   \"quote\": \"" + qd.getContent() + "\"\n" +
-                "   \"author\": \"" + qd.getAuthor() + "\"\n" +
+                "   \"id\": " + qd.getId() + ",\n" +
+                "   \"content\": \"" + qd.getContent().trim() + "\",\n" +
+                "   \"author\": \"" + qd.getAuthor().trim() + "\"\n" +
                 "}";
 
         try(BufferedWriter bw = new BufferedWriter(new FileWriter(dbPath + "/" + qd.getId() + ".json"))) {
-            bw.write(String.valueOf(str));
+            bw.write(str);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        mapper.writerWithDefaultPrettyPrinter()
-                .writeValue(new File(dbPath + "/" + qd.getId() + ".json"), qd);
+
+        // jackson 라이브러리 사용
+//        mapper.writerWithDefaultPrettyPrinter()
+//                .writeValue(new File(dbPath + "/" + qd.getId() + ".json"), qd);
     }
 
     /**
