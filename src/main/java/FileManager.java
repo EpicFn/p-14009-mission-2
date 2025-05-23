@@ -4,6 +4,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 public class FileManager {
     static final private String dbPath = "db/wiseSaying"; // 폴더 경로
@@ -55,10 +58,27 @@ public class FileManager {
     }
 
 
-    // TODO : 모든 명언.json 파일 읽기
+    /**
+     * 모든 명언.json 파일 읽기
+     *
+     * @return 명언 데이터 배열
+     * @throws Exception
+     */
+    public Collection<? extends QuoteData> readAllQuoteFiles() throws Exception {
+        File folder = new File(dbPath);
+        File[] files = folder.listFiles((dir, name) -> name.endsWith(".json"));
+        if (files == null) {
+            return Arrays.asList(new QuoteData[0]);
+        }
+        QuoteData[] quotes = new QuoteData[files.length];
+        for (int i = 0; i < files.length; i++) {
+            quotes[i] = readQuoteFile(Integer.parseInt(files[i].getName().replace(".json", "")));
+        }
+        return Arrays.asList(quotes);
+    }
 
     /**
-     * 마지막 id 읽기
+     * 마지막 id 저장
      * @return 마지막 id
      * @throws Exception
      */
@@ -68,6 +88,21 @@ public class FileManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+
+    /**
+     * 마지막 id 읽기
+     * @return 마지막 id
+     * @throws Exception
+     */
+    public int getLastId() throws Exception {
+        File file = new File(lastIdPath);
+        if (!file.exists()) {
+            return 0;
+        }
+        List<String> lines = java.nio.file.Files.readAllLines(file.toPath());
+        return Integer.parseInt(lines.get(0));
     }
 
 

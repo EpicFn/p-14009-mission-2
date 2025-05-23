@@ -26,6 +26,8 @@ public class QuoteBoard {
     QuoteBoard(){
         cmd = CommandType.시작;
         dic = new ArrayList<QuoteData>();
+        loadQuoteList(); // 명언 목록 불러오기
+        loadNextId(); // 다음 id 불러오기
     }
 
     // -----------------------------------------------------
@@ -205,7 +207,32 @@ public class QuoteBoard {
     // 기타 method
     // -----------------------------------------------------
 
-    // TODO : 명언 목록 초기화
+    /**
+     * 명언 목록을 dic에 저장
+     */
+    private void loadQuoteList() {
+        try {
+            dic.addAll(fm.readAllQuoteFiles());
+        } catch (Exception e) {
+            System.out.println("명언 목록 불러오기 실패");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 다음 id를 가져온다.
+     * @return 다음 id
+     */
+    public int loadNextId() {
+        try {
+            nextId = fm.getLastId();
+        } catch (Exception e) {
+            System.out.println("id 불러오기 실패");
+            e.printStackTrace();
+        }
+
+        return nextId++;
+    }
 
 
     /**
