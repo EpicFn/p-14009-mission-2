@@ -14,8 +14,10 @@ public class QuoteBoard {
     // -----------------------------------------------------
 
     private CommandType cmd;
-    private final ArrayList<String[]> dic; //[quote, author, id]
+    private final ArrayList<QuoteData> dic; //[quote, author, id]
     private int nextId = 1;
+
+    private FileManager fm = new FileManager(); // 파일 관리 객체
 
     // -----------------------------------------------------
     // constructor
@@ -23,7 +25,7 @@ public class QuoteBoard {
 
     QuoteBoard(){
         cmd = CommandType.시작;
-        dic = new ArrayList<String[]>();
+        dic = new ArrayList<QuoteData>();
     }
 
     // -----------------------------------------------------
@@ -42,11 +44,13 @@ public class QuoteBoard {
         return nextId;
     }
 
-
     // -----------------------------------------------------
     // CRUD method
     // -----------------------------------------------------
 
+    /**
+     * 명언 등록
+     */
     public void register() {
         Scanner sc = new Scanner(System.in);
         String quote;
@@ -74,28 +78,42 @@ public class QuoteBoard {
         }while(flag);
 
 
-        System.out.printf("%d번 명언이 등록되었습니다\n", nextId);
+        // 명언 등록
+        try {
+            QuoteData qd = new QuoteData(nextId, quote, author);
+            fm.createQuoteFile(qd);
+            dic.add(qd);
+        } catch (Exception e) {
+            System.out.println("등록 실패");
+            e.printStackTrace();
+        }
 
-        dic.add(new String[]{quote, author, String.valueOf(nextId++)});
     }
 
+    /**
+     * 명언 목록 출력
+     */
     public void listUp(){
 
         System.out.println("번호 / 작가 / 명언");
         System.out.println("--------------------");
 
-        String[] buf;
+        QuoteData buf;
         for(int i=dic.size()-1; i>= 0; i--){
             buf = dic.get(i);
-            System.out.printf("%s / %s / %s\n", buf[2], buf[1], buf[0]);
+            System.out.printf("%s / %s / %s\n", buf.getId(), buf.getAuthor(), buf.getContent());
         }
     }
 
-    public void delete(String buf){
+    /**
+     * 명언 삭제
+     * @param cmd 입력된 커멘드 ex) 삭제#id=1
+     */
+    public void delete(String cmd){
         //올바른 입력 확인
         int targetId;
         try{
-            targetId = Integer.parseInt(buf.substring(6));
+            targetId = Integer.parseInt(cmd.substring(6));
         }catch(Exception e){
             System.out.println("잘못된 입력 입니다");
             return;
@@ -109,15 +127,27 @@ public class QuoteBoard {
             return;
         }
 
-        dic.remove(idx);
-        System.out.printf("%d번 명언이 삭제되었습니다.\n", targetId);
+        // 명언 삭제
+        try {
+            fm.deleteQuoteFile(targetId);
+            dic.remove(idx);
+            System.out.printf("%d번 명언이 삭제되었습니다.\n", targetId);
+        } catch (Exception e) {
+            System.out.println("삭제 실패");
+            e.printStackTrace();
+        }
     }
 
-    public void update(String buf){
+
+    /**
+     * 명언 수정
+     * @param cmd 입력된 커멘드 ex) 수정#id=1
+     */
+    public void update(String cmd){
         //올바른 입력 확인
         int targetId;
         try{
-            targetId = Integer.parseInt(buf.substring(6));
+            targetId = Integer.parseInt(cmd.substring(6));
         }catch(Exception e){
             System.out.println("잘못된 입력 입니다");
             return;
@@ -136,8 +166,7 @@ public class QuoteBoard {
         String newQuote;
         String newAuthor;
 
-
-        System.out.printf("명언(기존) : %s\n", dic.get(idx)[0]);
+        System.out.printf("명언(기존) : %s\n", dic.get(idx).getContent());
 
         do{
             System.out.print("명언 : ");
@@ -149,7 +178,7 @@ public class QuoteBoard {
                 System.out.println("특수문자는 입력할 수 없습니다");
         }while(flag);
 
-        System.out.printf("작가(기존) : %s\n", dic.get(idx)[1]);
+        System.out.printf("작가(기존) : %s\n", dic.get(idx).getAuthor());
 
         do{
             System.out.print("작가 : ");
@@ -161,19 +190,42 @@ public class QuoteBoard {
                 System.out.println("특수문자는 입력할 수 없습니다");
         }while(flag);
 
-
-        dic.set(idx, new String[]{newQuote, newAuthor, String.valueOf(targetId)});
-
+        // 명언 수정
+        try {
+            QuoteData qd = new QuoteData(targetId, newQuote, newAuthor);
+            fm.updateQuoteFile(qd);
+            dic.set(idx, qd);
+        } catch (Exception e) {
+            System.out.println("수정 실패");
+            e.printStackTrace();
+        }
     }
 
     // -----------------------------------------------------
     // 기타 method
     // -----------------------------------------------------
 
+    // TODO : 명언 목록 초기화
 
-    // 종료 조건 확인
+
+    /**
+     * 종료 조건 확인
+     * @return 종료 조건이 맞으면 true, 아니면 false
+     */
     public boolean checkEndCondition(){
         return cmd.equals(CommandType.종료);
+    }
+
+    /**
+     * 종료 시퀸스
+     */
+    public void endSequence() {
+        try{
+            fm.saveLastId(nextId);
+        }catch (Exception e){
+            System.out.println("id 저장 실패");
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -183,10 +235,10 @@ public class QuoteBoard {
      */
     private int searchIndex(int targetId){
         for(int i=0; i<dic.size(); i++){
-            if(Integer.parseInt(dic.get(i)[2]) == targetId)
+            if(dic.get(i).getId() == targetId)
                 return i;
 
-            else if(Integer.parseInt(dic.get(i)[2]) > targetId)
+            else if(dic.get(i).getId() > targetId)
                 break;
         }
 
