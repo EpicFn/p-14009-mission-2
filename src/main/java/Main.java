@@ -1,4 +1,5 @@
 import java.io.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
 
@@ -6,13 +7,13 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         String buf;
 
-        QuoteBoard qb = new QuoteBoard();
+        //QuoteBoard qb = new QuoteBoard();
 
-        File file = new File("db/wiseSaying");
+        ObjectMapper om = new ObjectMapper();
+        String json = "{\"quote\":\"필생즉사 필사즉생\", \"author\":\"이순신\", \"id\": 1}";
+        QuoteData qd = om.readValue(json, QuoteData.class);
 
-
-
-
+        qd.printQuote();
 
         // -----------------------------------------------------
 //        System.out.println("== 명언 앱 ==");
