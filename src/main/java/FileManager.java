@@ -1,4 +1,4 @@
-import com.fasterxml.jackson.databind.ObjectMapper;
+//import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -13,7 +13,7 @@ public class FileManager {
     static final private String dbPath = "db/wiseSaying"; // 폴더 경로
     static final private String lastIdPath = "db/wiseSaying/lastId.txt"; // 마지막 id 저장 경로
     static final private String dataJsonPath = "data.json";
-    private ObjectMapper mapper = new ObjectMapper(); // JSON 변환 객체
+//    private ObjectMapper mapper = new ObjectMapper(); // JSON 변환 객체
 
     // -----------------------------------------------------
     // CRUD method
@@ -25,13 +25,7 @@ public class FileManager {
      * @throws Exception
      */
     public void createQuoteFile(QuoteData qd) throws Exception {
-
-        String str =
-                "{\n" +
-                "   \"id\": " + qd.getId() + ",\n" +
-                "   \"content\": \"" + qd.getContent().trim() + "\",\n" +
-                "   \"author\": \"" + qd.getAuthor().trim() + "\"\n" +
-                "}";
+        String str = parseJsonString(qd);
 
         try(BufferedWriter bw = new BufferedWriter(new FileWriter(dbPath + "/" + qd.getId() + ".json"))) {
             bw.write(str);
@@ -91,12 +85,7 @@ public class FileManager {
      * @throws Exception
      */
     public void updateQuoteFile(QuoteData qd) throws Exception {
-        String str =
-                "{\n" +
-                        "   \"id\": " + qd.getId() + ",\n" +
-                        "   \"content\": \"" + qd.getContent().trim() + "\",\n" +
-                        "   \"author\": \"" + qd.getAuthor().trim() + "\"\n" +
-                        "}";
+        String str = parseJsonString(qd);
 
         try(BufferedWriter bw = new BufferedWriter(new FileWriter(dbPath + "/" + qd.getId() + ".json"))) {
             bw.write(str);
@@ -112,6 +101,33 @@ public class FileManager {
     // -----------------------------------------------------
     // 기타 method
     // -----------------------------------------------------
+
+
+    /**
+     * 명언 데이터 JSON 문자열로 변환
+     * @param qd 명언 데이터
+     * @return JSON 문자열
+     */
+    private String parseJsonString(QuoteData qd) {
+        return "{\n" +
+                "   \"id\": " + qd.getId() + ",\n" +
+                "   \"content\": \"" + qd.getContent().trim() + "\",\n" +
+                "   \"author\": \"" + qd.getAuthor().trim() + "\"\n" +
+                "}";
+    }
+
+    /**
+     * data.json 파일에 저장할 JSON 문자열로 변환
+     * @param qd 명언 데이터
+     * @return JSON 문자열
+     */
+    private String parseJsonStringforDataJson(QuoteData qd) {
+        return "    {\n" +
+                "       \"id\": " + qd.getId() + ",\n" +
+                "       \"content\": \"" + qd.getContent().trim() + "\",\n" +
+                "       \"author\": \"" + qd.getAuthor().trim() + "\"\n" +
+                "   }";
+    }
 
     /**
      * 모든 명언.json 파일 읽기
@@ -165,11 +181,23 @@ public class FileManager {
      * @throws Exception
      */
     public boolean buildDataJson(ArrayList<QuoteData> qbs) throws Exception {
-        String jsonArray = mapper.writerWithDefaultPrettyPrinter()
-                .writeValueAsString(qbs);
+
+        // jackson 라이브러리 사용
+//        String jsonArray = mapper.writerWithDefaultPrettyPrinter()
+//                .writeValueAsString(qbs);
+
+        StringBuilder jsonArray = new StringBuilder("[\n");
+        for (int i = 0; i < qbs.size(); i++){
+            jsonArray.append(parseJsonStringforDataJson(qbs.get(i)));
+            if (i != qbs.size() - 1)
+                jsonArray.append(",\n");
+        }
+
+        jsonArray.append("\n]");
+
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(dataJsonPath))) {
-            bw.write(jsonArray);
+            bw.write(jsonArray.toString());
             return true;
         } catch (IOException e) {
             e.printStackTrace();
