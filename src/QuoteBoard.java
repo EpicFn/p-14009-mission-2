@@ -14,8 +14,8 @@ public class QuoteBoard {
     // -----------------------------------------------------
 
     private CommandType cmd;
-    private ArrayList<String[]> dic; //[quote, author, num]
-    private int num = 1;
+    private final ArrayList<String[]> dic; //[quote, author, id]
+    private int nextId = 1;
 
     // -----------------------------------------------------
     // constructor
@@ -38,12 +38,8 @@ public class QuoteBoard {
         this.cmd = cmd;
     }
 
-    public int getNum(){
-        return num;
-    }
-
-    public void setNum(int num){
-        this.num = num;
+    public int getNextId(){
+        return nextId;
     }
 
 
@@ -53,8 +49,8 @@ public class QuoteBoard {
 
     public void register() {
         Scanner sc = new Scanner(System.in);
-        String quote = "";
-        String author = "";
+        String quote;
+        String author;
         boolean flag;
 
         do{
@@ -78,9 +74,9 @@ public class QuoteBoard {
         }while(flag);
 
 
-        System.out.printf("%d번 명언이 등록되었습니다\n", num);
+        System.out.printf("%d번 명언이 등록되었습니다\n", nextId);
 
-        dic.add(new String[]{quote, author, String.valueOf(num++)});
+        dic.add(new String[]{quote, author, String.valueOf(nextId++)});
     }
 
     public void listUp(){
@@ -97,48 +93,48 @@ public class QuoteBoard {
 
     public void delete(String buf){
         //올바른 입력 확인
-        int targetNum = 0;
+        int targetId;
         try{
-            targetNum = Integer.parseInt(buf.substring(6));
+            targetId = Integer.parseInt(buf.substring(6));
         }catch(Exception e){
             System.out.println("잘못된 입력 입니다");
             return;
         }
 
         // 존재 여부 확인
-        int idx = searchIndex(targetNum);
+        int idx = searchIndex(targetId);
 
         if(idx == -1){
-            System.out.printf("%d번 명언은 존재하지 않습니다.\n", targetNum);
+            System.out.printf("%d번 명언은 존재하지 않습니다.\n", targetId);
             return;
         }
 
         dic.remove(idx);
-        System.out.printf("%d번 명언이 삭제되었습니다.\n", targetNum);
+        System.out.printf("%d번 명언이 삭제되었습니다.\n", targetId);
     }
 
     public void update(String buf){
         //올바른 입력 확인
-        int targeNum = 0;
+        int targetId;
         try{
-            targeNum = Integer.parseInt(buf.substring(6));
+            targetId = Integer.parseInt(buf.substring(6));
         }catch(Exception e){
             System.out.println("잘못된 입력 입니다");
             return;
         }
 
         // 존재 여부 확인
-        int idx = searchIndex(targeNum);
+        int idx = searchIndex(targetId);
 
         if(idx == -1){
-            System.out.printf("%d번 명언은 존재하지 않습니다.\n", targeNum);
+            System.out.printf("%d번 명언은 존재하지 않습니다.\n", targetId);
             return;
         }
 
         Scanner sc = new Scanner(System.in);
         boolean flag;
-        String newQuote = "";
-        String newAuthor = "";
+        String newQuote;
+        String newAuthor;
 
 
         System.out.printf("명언(기존) : %s\n", dic.get(idx)[0]);
@@ -166,7 +162,7 @@ public class QuoteBoard {
         }while(flag);
 
 
-        dic.set(idx, new String[]{newQuote, newAuthor, String.valueOf(targeNum)});
+        dic.set(idx, new String[]{newQuote, newAuthor, String.valueOf(targetId)});
 
     }
 
@@ -181,16 +177,16 @@ public class QuoteBoard {
     }
 
     /**
-     * targetNum과 일치하는 dic의 요소 인덱스를 반환
-     * @param targetNum 찾으려하는 num 값
+     * targetId과 일치하는 dic의 요소 인덱스를 반환
+     * @param targetId 찾으려하는 id 값
      * @return 일치하는 요소의 인덱스 반환 (없으면 -1 반환)
      */
-    private int searchIndex(int targetNum){
+    private int searchIndex(int targetId){
         for(int i=0; i<dic.size(); i++){
-            if(Integer.parseInt(dic.get(i)[2]) == targetNum)
+            if(Integer.parseInt(dic.get(i)[2]) == targetId)
                 return i;
 
-            else if(Integer.parseInt(dic.get(i)[2]) > targetNum)
+            else if(Integer.parseInt(dic.get(i)[2]) > targetId)
                 break;
         }
 
