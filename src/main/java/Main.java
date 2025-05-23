@@ -17,7 +17,12 @@ public class Main {
             System.out.print("명령) ");
             buf = br.readLine();
 
-            qb.setCmd(CommandType.valueOf(buf.substring(0,2)));
+            try{
+                qb.setCmd(CommandType.valueOf(buf.substring(0,2)));
+            } catch (IllegalArgumentException e){
+                System.out.println("잘못된 명령어입니다.");
+                continue;
+            }
 
             // command 에 따른 처리
             switch(qb.getCmd()){
