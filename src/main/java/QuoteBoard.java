@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 enum CommandType {
-    종료, 등록, 삭제, 수정, 목록, 시작
+    종료, 등록, 삭제, 수정, 목록, 빌드, 시작
 }
 
 public class QuoteBoard {
@@ -283,6 +283,15 @@ public class QuoteBoard {
         Matcher matcher = pattern.matcher(s);
 
         return matcher.find();
+    }
+
+    public void build(){
+        try {
+            fm.buildDataJson(this.dic);
+        } catch (Exception e) {
+            System.out.println("빌드 실패");
+            e.printStackTrace();
+        }
     }
 
 

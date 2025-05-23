@@ -33,6 +33,9 @@ public class Main {
                 case 목록 :
                     qb.listUp();
                     break;
+                case 빌드 :
+                    qb.build();
+                    break;
             }
         }
 

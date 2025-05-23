@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -11,7 +12,12 @@ import java.util.List;
 public class FileManager {
     static final private String dbPath = "db/wiseSaying"; // 폴더 경로
     static final private String lastIdPath = "db/wiseSaying/lastId.txt"; // 마지막 id 저장 경로
+    static final private String dataJsonPath = "data.json";
     private ObjectMapper mapper = new ObjectMapper(); // JSON 변환 객체
+
+    // -----------------------------------------------------
+    // CRUD method
+    // -----------------------------------------------------
 
     /**
      * 명언.json 파일 생성
@@ -57,6 +63,9 @@ public class FileManager {
                 .writeValue(new File(dbPath + "/" + qd.getId() + ".json"), qd);
     }
 
+    // -----------------------------------------------------
+    // 기타 method
+    // -----------------------------------------------------
 
     /**
      * 모든 명언.json 파일 읽기
@@ -90,7 +99,6 @@ public class FileManager {
         }
     }
 
-
     /**
      * 마지막 id 읽기
      * @return 마지막 id
@@ -105,5 +113,17 @@ public class FileManager {
         return Integer.parseInt(lines.get(0));
     }
 
+    public void buildDataJson(ArrayList<QuoteData> qbs) throws Exception {
+        String jsonArray = mapper.writerWithDefaultPrettyPrinter()
+                .writeValueAsString(qbs);
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(dataJsonPath))) {
+            bw.write(jsonArray);
+            System.out.println("data.json 파일의 내용이 갱신되었습니다.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 
 }
