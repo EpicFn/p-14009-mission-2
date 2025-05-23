@@ -36,6 +36,9 @@ public class Main {
                 case 빌드 :
                     qb.build();
                     break;
+                case 리셋 :
+                    qb.reset();
+                    break;
             }
         }
 

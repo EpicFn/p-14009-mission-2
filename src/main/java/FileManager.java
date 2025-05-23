@@ -33,14 +33,15 @@ public class FileManager {
      * 명언.json 파일 삭제
      * @param id 삭제할 명언의 id
      * @throws Exception
+     * @return 삭제 성공 여부
      */
-    public void deleteQuoteFile(int id) throws Exception {
+    public boolean deleteQuoteFile(int id) throws Exception {
         File file = new File(dbPath + "/" + id + ".json");
-        if (file.exists() && file.delete()) {
-            System.out.println("파일이 삭제되었습니다.");
-        } else {
-            System.out.println("파일이 존재하지 않습니다.");
-        }
+        if (file.exists() && file.delete())
+            return true;
+        else
+            return false;
+
     }
 
     /**
@@ -113,17 +114,34 @@ public class FileManager {
         return Integer.parseInt(lines.get(0));
     }
 
-    public void buildDataJson(ArrayList<QuoteData> qbs) throws Exception {
+    /**
+     * data.json 파일 생성
+     * @param qbs 명언 데이터 리스트
+     * @throws Exception
+     */
+    public boolean buildDataJson(ArrayList<QuoteData> qbs) throws Exception {
         String jsonArray = mapper.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(qbs);
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(dataJsonPath))) {
             bw.write(jsonArray);
-            System.out.println("data.json 파일의 내용이 갱신되었습니다.");
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
 
+    }
+
+    public void resetDatas() throws Exception {
+        File folder = new File(dbPath);
+        File[] files = folder.listFiles((dir, name) -> name.endsWith(".json"));
+        if (files != null) {
+            for (File file : files) {
+                file.delete();
+            }
+        }
+        saveLastId(0);
     }
 
 }

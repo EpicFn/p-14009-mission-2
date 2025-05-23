@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 enum CommandType {
-    종료, 등록, 삭제, 수정, 목록, 빌드, 시작
+    종료, 등록, 삭제, 수정, 목록, 빌드, 리셋, 시작
 }
 
 public class QuoteBoard {
@@ -223,15 +223,14 @@ public class QuoteBoard {
      * 다음 id를 가져온다.
      * @return 다음 id
      */
-    public int loadNextId() {
+    public void loadNextId() {
         try {
-            nextId = fm.getLastId();
+            nextId = fm.getLastId() + 1;
         } catch (Exception e) {
             System.out.println("id 불러오기 실패");
             e.printStackTrace();
         }
 
-        return nextId++;
     }
 
 
@@ -288,8 +287,21 @@ public class QuoteBoard {
     public void build(){
         try {
             fm.buildDataJson(this.dic);
+            System.out.println("data.json 파일의 내용이 갱신되었습니다.");
         } catch (Exception e) {
             System.out.println("빌드 실패");
+            e.printStackTrace();
+        }
+    }
+
+    public void reset() {
+        try {
+            fm.resetDatas();
+            dic.clear();
+            nextId = 1;
+            System.out.println("초기화 완료");
+        } catch (Exception e) {
+            System.out.println("초기화 실패");
             e.printStackTrace();
         }
     }
