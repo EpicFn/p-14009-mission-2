@@ -1,11 +1,10 @@
+package com.back;
+
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-enum CommandType {
-    종료, 등록, 삭제, 수정, 목록, 빌드, 초기화, 시작
-}
 
 public class QuoteBoard {
 
@@ -23,7 +22,7 @@ public class QuoteBoard {
     // constructor
     // -----------------------------------------------------
 
-    QuoteBoard(){
+    public QuoteBoard(){
         cmd = CommandType.시작;
         dic = new ArrayList<QuoteData>();
         loadQuoteList(); // 명언 목록 불러오기

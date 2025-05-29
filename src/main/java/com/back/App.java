@@ -1,11 +1,11 @@
-import java.io.*;
-import java.util.List;
+package com.back;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
-public class Main {
-
-    public static void main(String[] args) throws IOException  {
+public class App {
+    public void run() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         String buf;
 
@@ -22,7 +22,7 @@ public class Main {
             buf = br.readLine();
 
             try{
-                qb.setCmd(CommandType.valueOf(buf.split("#")[0]));
+                qb.setCmd(CommandType.valueOf(buf.split("\\?")[0]));
             } catch (IllegalArgumentException e){
                 System.out.println("잘못된 명령어입니다.");
                 continue;
@@ -53,9 +53,5 @@ public class Main {
 
         // 종료 시퀸스
         qb.endSequence();
-
     }
-
-
-
 }
