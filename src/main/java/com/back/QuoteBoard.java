@@ -12,37 +12,29 @@ public class QuoteBoard {
     // attribute
     // -----------------------------------------------------
 
-    private CommandType cmd;
-    private final ArrayList<QuoteData> dic; //[quote, author, id]
-    private int nextId = 1;
-
-    private FileManager fm = new FileManager(); // 파일 관리 객체
+    private QuoteService service; // 서비스 객체
+    private Rq rq = new Rq(); // 요청 객체
 
     // -----------------------------------------------------
     // constructor
     // -----------------------------------------------------
 
     public QuoteBoard(){
-        cmd = CommandType.시작;
-        dic = new ArrayList<QuoteData>();
-        loadQuoteList(); // 명언 목록 불러오기
-        loadNextId(); // 다음 id 불러오기
+        service = new QuoteService(); // 서비스 객체 초기화
+        loadData(); // 데이터 불러오기
+        rq.setCommand(CommandType.시작); // 초기 명령어 설정
     }
 
     // -----------------------------------------------------
     // getter, setter
     // -----------------------------------------------------
 
-    public CommandType getCmd() {
-        return cmd;
+    public Rq getRq() {
+        return rq;
     }
 
-    public void setCmd(CommandType cmd) {
-        this.cmd = cmd;
-    }
-
-    public int getNextId(){
-        return nextId;
+    public void setRq(Rq rq) {
+        this.rq = rq;
     }
 
     // -----------------------------------------------------
@@ -62,7 +54,7 @@ public class QuoteBoard {
             System.out.print("명언 : ");
             quote = sc.nextLine();
 
-            flag = filterString(quote);
+            flag = service.filterString(quote);
 
             if(flag)
                 System.out.println("특수문자는 입력할 수 없습니다");
@@ -72,7 +64,7 @@ public class QuoteBoard {
             System.out.print("작가 : ");
             author = sc.nextLine();
 
-            flag = filterString(author);
+            flag = service.filterString(author);
 
             if(flag)
                 System.out.println("특수문자는 입력할 수 없습니다");
@@ -81,9 +73,7 @@ public class QuoteBoard {
 
         // 명언 등록
         try {
-            QuoteData qd = new QuoteData(nextId++, quote, author);
-            fm.createQuoteFile(qd);
-            dic.add(qd);
+            service.register(quote, author);
         } catch (Exception e) {
             System.out.println("등록 실패");
             e.printStackTrace();
@@ -99,6 +89,7 @@ public class QuoteBoard {
         System.out.println("번호 / 작가 / 명언");
         System.out.println("--------------------");
 
+        ArrayList<QuoteData> dic = service.getDic(); // 명언 목록 가져오기
         QuoteData buf;
         for(int i=dic.size()-1; i>= 0; i--){
             buf = dic.get(i);
@@ -108,21 +99,25 @@ public class QuoteBoard {
 
     /**
      * 명언 삭제
-     * @param cmd 입력된 커멘드 ex) 삭제#id=1
      */
-    public void delete(String cmd){
+    public void delete(){
+        // id 파라미터가 있는지 확인
+        if(!rq.hasParam("id")){
+            System.out.println("잘못된 입력 입니다");
+            return;
+        }
+
         //올바른 입력 확인
         int targetId;
         try{
-            targetId = Integer.parseInt(cmd.substring(6));
+            targetId = Integer.parseInt(rq.getParam("id"));
         }catch(Exception e){
             System.out.println("잘못된 입력 입니다");
             return;
         }
 
         // 존재 여부 확인
-        int idx = searchIndex(targetId);
-
+        int idx = service.searchIndex(targetId);
         if(idx == -1){
             System.out.printf("%d번 명언은 존재하지 않습니다.\n", targetId);
             return;
@@ -130,8 +125,7 @@ public class QuoteBoard {
 
         // 명언 삭제
         try {
-            fm.deleteQuoteFile(targetId);
-            dic.remove(idx);
+            service.delete(targetId, idx);
             System.out.printf("%d번 명언이 삭제되었습니다.\n", targetId);
         } catch (Exception e) {
             System.out.println("삭제 실패");
@@ -142,50 +136,56 @@ public class QuoteBoard {
 
     /**
      * 명언 수정
-     * @param cmd 입력된 커멘드 ex) 수정#id=1
      */
-    public void update(String cmd){
+    public void update(){
+        // id 파라미터가 있는지 확인
+        if(!rq.hasParam("id")){
+            System.out.println("잘못된 입력 입니다");
+            return;
+        }
+
         //올바른 입력 확인
         int targetId;
         try{
-            targetId = Integer.parseInt(cmd.substring(6));
+            targetId = Integer.parseInt(rq.getParam("id"));
         }catch(Exception e){
             System.out.println("잘못된 입력 입니다");
             return;
         }
 
         // 존재 여부 확인
-        int idx = searchIndex(targetId);
-
+        int idx = service.searchIndex(targetId);
         if(idx == -1){
             System.out.printf("%d번 명언은 존재하지 않습니다.\n", targetId);
             return;
         }
 
+
+        // 새 값 입력받기
         Scanner sc = new Scanner(System.in);
         boolean flag;
         String newQuote;
         String newAuthor;
 
-        System.out.printf("명언(기존) : %s\n", dic.get(idx).getContent());
+        System.out.printf("명언(기존) : %s\n", service.getDic().get(idx).getContent());
 
         do{
             System.out.print("명언 : ");
             newQuote = sc.nextLine();
 
-            flag = filterString(newQuote);
+            flag = service.filterString(newQuote);
 
             if(flag)
                 System.out.println("특수문자는 입력할 수 없습니다");
         }while(flag);
 
-        System.out.printf("작가(기존) : %s\n", dic.get(idx).getAuthor());
+        System.out.printf("작가(기존) : %s\n", service.getDic().get(idx).getAuthor());
 
         do{
             System.out.print("작가 : ");
             newAuthor = sc.nextLine();
 
-            flag = filterString(newAuthor);
+            flag = service.filterString(newAuthor);
 
             if(flag)
                 System.out.println("특수문자는 입력할 수 없습니다");
@@ -193,9 +193,7 @@ public class QuoteBoard {
 
         // 명언 수정
         try {
-            QuoteData qd = new QuoteData(targetId, newQuote, newAuthor);
-            fm.updateQuoteFile(qd);
-            dic.set(idx, qd);
+            service.update(targetId, idx, newQuote, newAuthor);
         } catch (Exception e) {
             System.out.println("수정 실패");
             e.printStackTrace();
@@ -207,29 +205,16 @@ public class QuoteBoard {
     // -----------------------------------------------------
 
     /**
-     * 명언 목록을 dic에 저장
+     * 명언 목록, id 불러오기
      */
-    private void loadQuoteList() {
+    private void loadData() {
         try {
-            dic.addAll(fm.readAllQuoteFiles());
+            service.loadQuoteList(); // 명언 목록 불러오기
+            service.loadNextId(); // 다음 id 불러오기
         } catch (Exception e) {
-            System.out.println("명언 목록 불러오기 실패");
+            System.out.println("데이터 불러오기 실패");
             e.printStackTrace();
         }
-    }
-
-    /**
-     * 다음 id를 가져온다.
-     * @return 다음 id
-     */
-    public void loadNextId() {
-        try {
-            nextId = fm.getLastId() + 1;
-        } catch (Exception e) {
-            System.out.println("id 불러오기 실패");
-            e.printStackTrace();
-        }
-
     }
 
 
@@ -238,7 +223,7 @@ public class QuoteBoard {
      * @return 종료 조건이 맞으면 true, 아니면 false
      */
     public boolean checkEndCondition(){
-        return cmd.equals(CommandType.종료);
+        return rq.getCommand().equals(CommandType.종료);
     }
 
     /**
@@ -246,46 +231,17 @@ public class QuoteBoard {
      */
     public void endSequence() {
         try{
-            fm.saveLastId(nextId-1);
+            service.saveLastId(); // 마지막 id 저장
         }catch (Exception e){
             System.out.println("id 저장 실패");
             e.printStackTrace();
         }
     }
 
-    /**
-     * targetId과 일치하는 dic의 요소 인덱스를 반환
-     * @param targetId 찾으려하는 id 값
-     * @return 일치하는 요소의 인덱스 반환 (없으면 -1 반환)
-     */
-    private int searchIndex(int targetId){
-        for(int i=0; i<dic.size(); i++){
-            if(dic.get(i).getId() == targetId)
-                return i;
-
-            else if(dic.get(i).getId() > targetId)
-                break;
-        }
-
-        return -1;
-    }
-
-    /**
-     * 입력받은 문자열에 특수문자가 포함됐는지 여부를 반환한다.
-     * @param s 확인하려는 문자열
-     * @return 특수문자가 있을 경우 true, 없을 경우 false
-     */
-    private boolean filterString(String s){
-        String regex = "[^a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ\\s]"; // 특수문자 필터링
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(s);
-
-        return matcher.find();
-    }
 
     public void build(){
         try {
-            fm.buildDataJson(this.dic);
+            service.build();
             System.out.println("data.json 파일의 내용이 갱신되었습니다.");
         } catch (Exception e) {
             System.out.println("빌드 실패");
@@ -295,9 +251,7 @@ public class QuoteBoard {
 
     public void reset() {
         try {
-            fm.resetDatas();
-            dic.clear();
-            nextId = 1;
+            service.reset();
             System.out.println("초기화 완료");
         } catch (Exception e) {
             System.out.println("초기화 실패");

@@ -9,8 +9,11 @@ public class App {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         String buf;
 
+
         QuoteBoard qb = new QuoteBoard();
 
+
+        // TODO : startSequence() 메소드로 초기화 작업을 분리할 것
 
 
         // -----------------------------------------------------
@@ -22,22 +25,22 @@ public class App {
             buf = br.readLine();
 
             try{
-                qb.setCmd(CommandType.valueOf(buf.split("\\?")[0]));
+                qb.getRq().parse(buf);
             } catch (IllegalArgumentException e){
                 System.out.println("잘못된 명령어입니다.");
                 continue;
             }
 
             // command 에 따른 처리
-            switch(qb.getCmd()){
+            switch(qb.getRq().getCommand()) {
                 case 등록 :
                     qb.register();
                     break;
                 case 삭제 :
-                    qb.delete(buf);
+                    qb.delete();
                     break;
                 case 수정 :
-                    qb.update(buf);
+                    qb.update();
                     break;
                 case 목록 :
                     qb.listUp();
