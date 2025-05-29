@@ -1,4 +1,7 @@
-package com.back;
+package com.back.domain.quote.service;
+import com.back.domain.quote.repository.FileManager;
+import com.back.domain.quote.entity.QuoteData;
+
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

@@ -1,5 +1,7 @@
 package com.back;
 
+import com.back.domain.quote.controller.QuoteController;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,26 +12,15 @@ public class App {
         String buf;
 
 
-        QuoteBoard qb = new QuoteBoard();
+        QuoteController qb = new QuoteController();
 
 
-        // TODO : startSequence() 메소드로 초기화 작업을 분리할 것
-
-
-        // -----------------------------------------------------
-        System.out.println("== 명언 앱 ==");
+        qb.startSequence();
 
         while(!qb.checkEndCondition()){
-            // command 입력 받기
-            System.out.print("명령) ");
-            buf = br.readLine();
-
-            try{
-                qb.getRq().parse(buf);
-            } catch (IllegalArgumentException e){
-                System.out.println("잘못된 명령어입니다.");
-                continue;
-            }
+            // 사용자 입력 받기
+            if(!qb.getUserInput())
+                continue; // 입력이 잘못되면 다시 입력 받기
 
             // command 에 따른 처리
             switch(qb.getRq().getCommand()) {

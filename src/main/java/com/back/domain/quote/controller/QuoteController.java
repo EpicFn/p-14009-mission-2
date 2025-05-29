@@ -1,28 +1,32 @@
-package com.back;
+package com.back.domain.quote.controller;
 
+import com.back.domain.quote.component.CommandType;
+import com.back.domain.quote.entity.QuoteData;
+import com.back.domain.quote.service.QuoteService;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
-public class QuoteBoard {
+public class QuoteController {
 
     // -----------------------------------------------------
     // attribute
     // -----------------------------------------------------
 
-    private QuoteService service; // 서비스 객체
+    private QuoteService service = new QuoteService(); // 서비스 객체
     private Rq rq = new Rq(); // 요청 객체
+
+    Scanner sc = new Scanner(System.in);
+
 
     // -----------------------------------------------------
     // constructor
     // -----------------------------------------------------
 
-    public QuoteBoard(){
-        service = new QuoteService(); // 서비스 객체 초기화
-        loadData(); // 데이터 불러오기
-        rq.setCommand(CommandType.시작); // 초기 명령어 설정
+    public QuoteController(){
     }
 
     // -----------------------------------------------------
@@ -38,14 +42,13 @@ public class QuoteBoard {
     }
 
     // -----------------------------------------------------
-    // CRUD method
+    // COMMAND method
     // -----------------------------------------------------
 
     /**
      * 명언 등록
      */
     public void register() {
-        Scanner sc = new Scanner(System.in);
         String quote;
         String author;
         boolean flag;
@@ -162,7 +165,6 @@ public class QuoteBoard {
 
 
         // 새 값 입력받기
-        Scanner sc = new Scanner(System.in);
         boolean flag;
         String newQuote;
         String newAuthor;
@@ -200,9 +202,45 @@ public class QuoteBoard {
         }
     }
 
+    public void build(){
+        try {
+            service.build();
+            System.out.println("data.json 파일의 내용이 갱신되었습니다.");
+        } catch (Exception e) {
+            System.out.println("빌드 실패");
+            e.printStackTrace();
+        }
+    }
+
+    public void reset() {
+        try {
+            service.reset();
+            System.out.println("초기화 완료");
+        } catch (Exception e) {
+            System.out.println("초기화 실패");
+            e.printStackTrace();
+        }
+    }
+
     // -----------------------------------------------------
     // 기타 method
     // -----------------------------------------------------
+
+    public boolean getUserInput(){
+        System.out.print("명령) ");
+        String buf = sc.nextLine().trim();
+
+        try {
+            rq.parse(buf); // 명령어 파싱
+        } catch (IllegalArgumentException e) {
+            System.out.println("잘못된 명령어입니다.");
+            return false;
+        }
+
+        return true;
+    }
+
+
 
     /**
      * 명언 목록, id 불러오기
@@ -226,6 +264,16 @@ public class QuoteBoard {
         return rq.getCommand().equals(CommandType.종료);
     }
 
+
+
+    public void startSequence() {
+
+        loadData(); // 데이터 불러오기
+        rq.setCommand(CommandType.시작); // 초기 명령어 설정
+
+        System.out.println("== 명언 앱 시작 ==");
+    }
+
     /**
      * 종료 시퀸스
      */
@@ -239,25 +287,6 @@ public class QuoteBoard {
     }
 
 
-    public void build(){
-        try {
-            service.build();
-            System.out.println("data.json 파일의 내용이 갱신되었습니다.");
-        } catch (Exception e) {
-            System.out.println("빌드 실패");
-            e.printStackTrace();
-        }
-    }
-
-    public void reset() {
-        try {
-            service.reset();
-            System.out.println("초기화 완료");
-        } catch (Exception e) {
-            System.out.println("초기화 실패");
-            e.printStackTrace();
-        }
-    }
 
 
 

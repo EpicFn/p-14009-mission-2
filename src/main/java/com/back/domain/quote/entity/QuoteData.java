@@ -1,4 +1,4 @@
-package com.back;
+package com.back.domain.quote.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

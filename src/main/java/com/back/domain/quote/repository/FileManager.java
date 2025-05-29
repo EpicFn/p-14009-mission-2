@@ -1,7 +1,9 @@
 //import com.fasterxml.jackson.databind.ObjectMapper;
 
 
-package com.back;
+package com.back.domain.quote.repository;
+
+import com.back.domain.quote.entity.QuoteData;
 
 import java.io.BufferedWriter;
 import java.io.File;
